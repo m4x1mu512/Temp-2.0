@@ -2,21 +2,15 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.compose.compiler)   // остаётся, но теперь версия 2.0.0
 }
 
 android {
-    namespace = "com.example.temp"
-    compileSdk = 34
-
-    defaultConfig {
-        applicationId = "com.example.temp"
-        minSdk = 26
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
-        vectorDrawables { useSupportLibrary = true }
-    }
+    // ... остальное как было
+    kotlinOptions { jvmTarget = "17" }
+    buildFeatures { compose = true }
+    // composeOptions БОЛЬШЕ НЕ НУЖНЫ — их заменяет плагин compose.compiler
+}
 
     buildTypes {
         release {
