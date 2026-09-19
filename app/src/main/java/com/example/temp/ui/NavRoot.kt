@@ -3,7 +3,9 @@ package com.example.temp.ui
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -43,12 +45,17 @@ fun NavRoot(
             composable(Routes.SETTINGS) { SettingsScreen(nav, vm) }
             composable(Routes.EQUALIZER) { EqualizerScreen(nav) }
             composable(Routes.VISUALIZER) { VisualizerScreen(nav, vm) }
-            composable(Routes.ALL_TRACKS) { TrackListScreen(nav, vm, "Все треки", vm.tracks) }
+            composable(Routes.ALL_TRACKS) {
+                TrackListScreen(nav, vm, "Все треки", vm.tracks)
+            }
             composable(Routes.FAVORITES) {
-                val favs = vm.favorites.collectAsStateValue()
-                val allTracks = vm.tracks.collectAsStateValue()
-                val filtered = allTracks.filter { it.id in favs }
-                TrackListScreen(nav, vm, "Избранное", kotlinx.coroutines.flow.flowOf(filtered))
+                val favs by vm.favorites.collectAsStateWithLifecycle()
+                val all by vm.tracks.collectAsStateWithLifecycle()
+                val filtered = all.filter { it.id in favs }
+                TrackListScreen(
+                    nav, vm, "Избранное",
+                    source = kotlinx.coroutines.flow.flowOf(filtered)
+                )
             }
             composable(Routes.PLAYLIST_DETAIL) { back ->
                 val id = back.arguments?.getString("id")?.toLongOrNull() ?: -1L
@@ -60,12 +67,3 @@ fun NavRoot(
         }
     }
 }
-
-@Composable
-private fun <T> kotlinx.coroutines.flow.Flow<T>.collectAsStateValue(): T =
-    androidx.compose.runtime.collectAsState(
-        initial = when (this) {
-            is kotlinx.coroutines.flow.StateFlow<T> -> value
-            else -> @Suppress("UNCHECKED_CAST") (emptyList<Any>() as T)
-        }
-    ).value
