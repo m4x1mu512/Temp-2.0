@@ -172,7 +172,7 @@ class PlayerController(private val context: Context) {
         controllerFuture = null
     }
 
-    private fun MediaItem.toTrackStub(): TrackEntity = TrackEntity(
+        private fun MediaItem.toTrackStub(): TrackEntity = TrackEntity(
         id = mediaId.toLongOrNull() ?: -1L,
         uri = localConfiguration?.uri?.toString() ?: "",
         title = mediaMetadata.title?.toString().orEmpty(),
@@ -181,7 +181,7 @@ class PlayerController(private val context: Context) {
         albumId = null,
         artistId = null,
         folder = null,
-        durationMs = mediaMetadata.durationMs ?: 0L,
+        durationMs = 0L,
         sizeBytes = 0L,
         dateAdded = 0L,
         mimeType = null,
@@ -195,7 +195,6 @@ fun TrackEntity.toMediaItem(): MediaItem {
         .setArtist(artist ?: "Неизвестный исполнитель")
         .setAlbumTitle(album ?: "Неизвестный альбом")
         .setArtworkUri(artworkUri?.let { android.net.Uri.parse(it) })
-        .setDurationMs(durationMs)
         .build()
     return MediaItem.Builder()
         .setMediaId(id.toString())
