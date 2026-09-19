@@ -1,7 +1,16 @@
 package com.example.temp.ui.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MusicNote
@@ -18,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.temp.data.TrackEntity
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TrackRow(
     track: TrackEntity,
@@ -28,7 +38,7 @@ fun TrackRow(
         Modifier
             .fillMaxWidth()
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-            .padding(12.dp, 8.dp),
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
@@ -36,7 +46,7 @@ fun TrackRow(
                 .size(48.dp)
                 .clip(RoundedCornerShape(10.dp))
         ) {
-            if (track.artworkUri != null) {
+            if (!track.artworkUri.isNullOrBlank()) {
                 AsyncImage(
                     model = track.artworkUri,
                     contentDescription = null,
@@ -46,25 +56,35 @@ fun TrackRow(
             } else {
                 Icon(
                     Icons.Default.MusicNote,
-                    null,
-                    modifier = Modifier.align(Alignment.Center)
+                    contentDescription = null,
+                    modifier = Modifier.align(Alignment.Center),
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
+
         Spacer(Modifier.width(12.dp))
+
         Column(Modifier.weight(1f)) {
             Text(
-                track.title,
+                track.title.ifBlank { "Неизвестный трек" },
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyLarge
             )
-            Text(
-                listOfNotNull(track.artist, track.album).joinToString(" • "),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodySmall
-            )
+            val subtitle = listOfNotNull(
+                track.artist,
+                track.album
+            ).filter { it.isNotBlank() }.joinToString(" • ")
+            if (subtitle.isNotBlank()) {
+                Text(
+                    subtitle,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }
