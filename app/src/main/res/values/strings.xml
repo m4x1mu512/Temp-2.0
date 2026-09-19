@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Темп</string>
+    <string name="scan">Сканировать</string>
+    <string name="settings">Настройки</string>
+    <string name="equalizer">Эквалайзер</string>
+    <string name="sleep_timer">Таймер сна</string>
+    <string name="playlists">Плейлисты</string>
+    <string name="folders">Папки</string>
+    <string name="albums">Альбомы</string>
+    <string name="artists">Исполнители</string>
+    <string name="search">Поиск</string>
+    <string name="queue">Очередь</string>
+    <string name="all_tracks">Все треки</string>
+    <string name="favorites">Избранное</string>
+    <string name="your_playlists">Ваши плейлисты</string>
+    <string name="create_playlist">Создать плейлист</string>
+    <string name="grant_permission">Разрешить доступ к аудио</string>
+    <string name="permission_rationale">Для работы плееру нужен доступ к аудиофайлам на устройстве.</string>
+    <string name="empty_library">Медиатека пуста</string>
+    <string name="playback_error">Не удалось воспроизвести файл</string>
+</resources>
