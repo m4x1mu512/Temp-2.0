@@ -1,17 +1,46 @@
 package com.example.temp.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Album
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.LibraryMusic
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.QueueMusic
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -22,8 +51,8 @@ import com.example.temp.data.TrackEntity
 import com.example.temp.ui.MainViewModel
 import com.example.temp.ui.Routes
 import com.example.temp.ui.components.MiniPlayer
-import com.example.temp.ui.components.TrackRow
 import com.example.temp.ui.components.TopIconsRow
+import com.example.temp.ui.components.TrackRow
 
 @Composable
 fun HomeScreen(nav: NavHostController, vm: MainViewModel) {
@@ -35,7 +64,11 @@ fun HomeScreen(nav: NavHostController, vm: MainViewModel) {
     var showSleepDialog by remember { mutableStateOf(false) }
     var contextMenuOpen by remember { mutableStateOf(false) }
 
-    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
         Column(Modifier.fillMaxSize()) {
             TopIconsRow(
                 onQueue = { selectedTab = 0 },
@@ -55,13 +88,15 @@ fun HomeScreen(nav: NavHostController, vm: MainViewModel) {
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
-            when (selectedTab) {
-                0 -> QueueTab(nav, vm, tracks)
-                1 -> FoldersTab(nav, vm)
-                2 -> PlaylistsTab(nav, vm)
-                3 -> AlbumsTab(nav, vm)
-                4 -> ArtistsTab(nav, vm)
-                5 -> SearchTab(nav, vm)
+            Box(Modifier.fillMaxWidth().weight(1f)) {
+                when (selectedTab) {
+                    0 -> QueueTab(nav, vm, tracks)
+                    1 -> FoldersTab(nav, vm)
+                    2 -> PlaylistsTab(nav, vm)
+                    3 -> AlbumsTab(nav, vm)
+                    4 -> ArtistsTab(nav, vm)
+                    5 -> SearchTab(nav, vm)
+                }
             }
         }
 
@@ -73,26 +108,44 @@ fun HomeScreen(nav: NavHostController, vm: MainViewModel) {
             modifier = Modifier.align(Alignment.BottomCenter)
         )
 
-        DropdownMenu(
-            expanded = contextMenuOpen,
-            onDismissRequest = { contextMenuOpen = false }
+        Box(
+            Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 48.dp, end = 4.dp)
         ) {
-            DropdownMenuItem(
-                text = { Text("Эквалайзер") },
-                onClick = { contextMenuOpen = false; nav.navigate(Routes.EQUALIZER) }
-            )
-            DropdownMenuItem(
-                text = { Text("Таймер сна") },
-                onClick = { contextMenuOpen = false; showSleepDialog = true }
-            )
-            DropdownMenuItem(
-                text = { Text("Сканировать") },
-                onClick = { contextMenuOpen = false; showScanDialog = true }
-            )
-            DropdownMenuItem(
-                text = { Text("Настройки") },
-                onClick = { contextMenuOpen = false; nav.navigate(Routes.SETTINGS) }
-            )
+            DropdownMenu(
+                expanded = contextMenuOpen,
+                onDismissRequest = { contextMenuOpen = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Эквалайзер") },
+                    onClick = {
+                        contextMenuOpen = false
+                        nav.navigate(Routes.EQUALIZER)
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Таймер сна") },
+                    onClick = {
+                        contextMenuOpen = false
+                        showSleepDialog = true
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Сканировать") },
+                    onClick = {
+                        contextMenuOpen = false
+                        showScanDialog = true
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Настройки") },
+                    onClick = {
+                        contextMenuOpen = false
+                        nav.navigate(Routes.SETTINGS)
+                    }
+                )
+            }
         }
     }
 
@@ -100,11 +153,16 @@ fun HomeScreen(nav: NavHostController, vm: MainViewModel) {
         AlertDialog(
             onDismissRequest = { showScanDialog = false },
             confirmButton = {
-                TextButton(onClick = { vm.scan(); showScanDialog = false }) { Text("Вся медиатека") }
+                TextButton(onClick = {
+                    vm.scan()
+                    showScanDialog = false
+                }) { Text("Сканировать") }
             },
-            dismissButton = { TextButton(onClick = { showScanDialog = false }) { Text("Отмена") } },
+            dismissButton = {
+                TextButton(onClick = { showScanDialog = false }) { Text("Отмена") }
+            },
             title = { Text("Сканирование") },
-            text = { Text("Выполнить сканирование всех аудиофайлов на устройстве?") }
+            text = { Text("Найти все аудиофайлы на устройстве?") }
         )
     }
 
@@ -114,9 +172,16 @@ fun HomeScreen(nav: NavHostController, vm: MainViewModel) {
 }
 
 @Composable
-private fun QueueTab(nav: NavHostController, vm: MainViewModel, tracks: List<TrackEntity>) {
-    if (tracks.isEmpty()) EmptyLibrary()
-    else LazyColumn(Modifier.fillMaxSize()) {
+private fun QueueTab(
+    nav: NavHostController,
+    vm: MainViewModel,
+    tracks: List<TrackEntity>
+) {
+    if (tracks.isEmpty()) {
+        EmptyLibrary()
+        return
+    }
+    LazyColumn(Modifier.fillMaxSize()) {
         items(tracks, key = { it.id }) { t ->
             TrackRow(
                 track = t,
@@ -126,7 +191,8 @@ private fun QueueTab(nav: NavHostController, vm: MainViewModel, tracks: List<Tra
                     nav.navigate(Routes.PLAYER)
                 },
                 onLongClick = {
-                    vm.playerController.setQueue(tracks, tracks.indexOf(t), play = false)
+                    val idx = tracks.indexOf(t)
+                    vm.playerController.setQueue(tracks, idx, play = false)
                 }
             )
         }
@@ -137,16 +203,23 @@ private fun QueueTab(nav: NavHostController, vm: MainViewModel, tracks: List<Tra
 @Composable
 private fun FoldersTab(nav: NavHostController, vm: MainViewModel) {
     val folders by vm.folders.collectAsStateWithLifecycle()
+    if (folders.isEmpty()) {
+        EmptyLibrary()
+        return
+    }
     LazyColumn(Modifier.fillMaxSize()) {
         items(folders, key = { it }) { folder ->
             ListItem(
-                headlineContent = { Text(folder.substringAfterLast('/')) },
+                headlineContent = {
+                    Text(folder.substringAfterLast('/').ifBlank { folder })
+                },
                 supportingContent = {
                     Text(folder, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
                 leadingContent = { Icon(Icons.Default.Folder, null) },
                 modifier = Modifier.clickable {
-                    nav.navigate(Routes.FOLDER_DETAIL + "?path=" + android.net.Uri.encode(folder))
+                    nav.currentBackStackEntry?.savedStateHandle?.set("path", folder)
+                    nav.navigate(Routes.FOLDER_DETAIL)
                 }
             )
         }
@@ -178,14 +251,14 @@ private fun PlaylistsTab(nav: NavHostController, vm: MainViewModel) {
         item {
             Text(
                 "Ваши плейлисты",
-                modifier = Modifier.padding(16.dp, 8.dp),
+                modifier = Modifier.padding(16.dp, 12.dp),
                 fontWeight = FontWeight.SemiBold
             )
         }
         item {
             Button(
                 onClick = { showCreate = true },
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
             ) { Text("Создать плейлист") }
         }
         items(playlists, key = { it.id }) { p ->
@@ -206,7 +279,8 @@ private fun PlaylistsTab(nav: NavHostController, vm: MainViewModel) {
                 OutlinedTextField(
                     value = newName,
                     onValueChange = { newName = it },
-                    singleLine = true
+                    singleLine = true,
+                    placeholder = { Text("Название") }
                 )
             },
             confirmButton = {
@@ -216,7 +290,9 @@ private fun PlaylistsTab(nav: NavHostController, vm: MainViewModel) {
                     showCreate = false
                 }) { Text("Создать") }
             },
-            dismissButton = { TextButton(onClick = { showCreate = false }) { Text("Отмена") } }
+            dismissButton = {
+                TextButton(onClick = { showCreate = false }) { Text("Отмена") }
+            }
         )
     }
 }
@@ -224,13 +300,18 @@ private fun PlaylistsTab(nav: NavHostController, vm: MainViewModel) {
 @Composable
 private fun AlbumsTab(nav: NavHostController, vm: MainViewModel) {
     val albums by vm.albums.collectAsStateWithLifecycle()
+    if (albums.isEmpty()) {
+        EmptyLibrary()
+        return
+    }
     LazyColumn(Modifier.fillMaxSize()) {
         items(albums, key = { it }) { a ->
             ListItem(
-                headlineContent = { Text(a) },
+                headlineContent = { Text(a, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 leadingContent = { Icon(Icons.Default.Album, null) },
                 modifier = Modifier.clickable {
-                    nav.navigate(Routes.ALBUM_DETAIL + "?name=" + android.net.Uri.encode(a))
+                    nav.currentBackStackEntry?.savedStateHandle?.set("name", a)
+                    nav.navigate(Routes.ALBUM_DETAIL)
                 }
             )
         }
@@ -241,13 +322,18 @@ private fun AlbumsTab(nav: NavHostController, vm: MainViewModel) {
 @Composable
 private fun ArtistsTab(nav: NavHostController, vm: MainViewModel) {
     val artists by vm.artists.collectAsStateWithLifecycle()
+    if (artists.isEmpty()) {
+        EmptyLibrary()
+        return
+    }
     LazyColumn(Modifier.fillMaxSize()) {
         items(artists, key = { it }) { a ->
             ListItem(
-                headlineContent = { Text(a) },
+                headlineContent = { Text(a, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 leadingContent = { Icon(Icons.Default.Person, null) },
                 modifier = Modifier.clickable {
-                    nav.navigate(Routes.ARTIST_DETAIL + "?name=" + android.net.Uri.encode(a))
+                    nav.currentBackStackEntry?.savedStateHandle?.set("name", a)
+                    nav.navigate(Routes.ARTIST_DETAIL)
                 }
             )
         }
@@ -258,16 +344,16 @@ private fun ArtistsTab(nav: NavHostController, vm: MainViewModel) {
 @Composable
 private fun SearchTab(nav: NavHostController, vm: MainViewModel) {
     var q by remember { mutableStateOf("") }
-    val results by remember(q) { derivedStateOf { q } }
-        .let { flowOf(it) }
-        .let { _ -> vm.search(q) }
-        .collectAsStateWithLifecycle(initialValue = emptyList())
+    val flow = remember(q) { vm.search(q) }
+    val results by flow.collectAsStateWithLifecycle(initialValue = emptyList())
 
     Column(Modifier.fillMaxSize()) {
         OutlinedTextField(
             value = q,
             onValueChange = { q = it },
-            modifier = Modifier.fillMaxWidth().padding(16.dp, 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             placeholder = { Text("Название, исполнитель, альбом") },
             leadingIcon = { Icon(Icons.Default.Search, null) },
             singleLine = true
@@ -281,7 +367,10 @@ private fun SearchTab(nav: NavHostController, vm: MainViewModel) {
                         vm.playerController.setQueue(list, list.indexOf(t), play = true)
                         nav.navigate(Routes.PLAYER)
                     },
-                    onLongClick = {}
+                    onLongClick = {
+                        val list = results
+                        vm.playerController.setQueue(list, list.indexOf(t), play = false)
+                    }
                 )
             }
             item { Spacer(Modifier.height(96.dp)) }
@@ -292,19 +381,26 @@ private fun SearchTab(nav: NavHostController, vm: MainViewModel) {
 @Composable
 private fun EmptyLibrary() {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(24.dp)
+        ) {
             Icon(
                 Icons.Default.MusicNote,
-                null,
-                modifier = Modifier.size(72.dp),
+                contentDescription = null,
+                modifier = Modifier.width(72.dp).height(72.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(12.dp))
             Text("Медиатека пуста", style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(4.dp))
             Text(
                 "Добавьте музыку на устройство и выполните сканирование",
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(horizontal = 24.dp)
             )
+            Spacer(Modifier.height(12.dp))
         }
     }
 }
