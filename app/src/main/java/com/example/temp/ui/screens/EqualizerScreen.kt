@@ -1,6 +1,7 @@
 package com.example.temp.ui.screens
 
 import android.media.audiofx.Equalizer
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -18,19 +19,20 @@ import androidx.navigation.NavHostController
 fun EqualizerScreen(nav: NavHostController) {
     val ctx = LocalContext.current
     var eq by remember { mutableStateOf<Equalizer?>(null) }
-    var bands by remember { mutableStateOf(emptyList<Pair<Short, Int>>()) } // centerFreq mHz -> level
+    var bands by remember { mutableStateOf(emptyList<Triple<Short, Int, Short>>()) }
+    // Triple(bandIndex, centerFreqHz, level)
     var preset by remember { mutableIntStateOf(-1) }
 
     DisposableEffect(Unit) {
         val e = runCatching { Equalizer(0, 0) }.getOrNull()
         if (e != null) {
             e.enabled = true
+            val range = e.bandLevelRange
+            val mid = ((range[0].toInt() + range[1].toInt()) / 2).toShort()
             bands = (0 until e.numberOfBands).map { i ->
-                val b = e.getBand(i)
-                val range = e.bandLevelRange
-                val level = if (i < 5) (range[0] + (range[1] - range[0]) / 2) else 0
-                e.setBandLevel(b, level.toShort())
-                (b.centerFreq.toInt() to level)
+                val b = i.toShort()
+                e.setBandLevel(b, mid)
+                Triple(b, e.getCenterFreq(b), mid)
             }
         }
         eq = e
@@ -56,21 +58,23 @@ fun EqualizerScreen(nav: NavHostController) {
                 .padding(p)
                 .padding(16.dp)
         ) {
-            if (eq == null) {
+            val e = eq
+            if (e == null) {
                 Text("Эквалайзер недоступен на этом устройстве")
             } else {
-                val e = eq!!
                 Text("Пресеты", style = MaterialTheme.typography.titleMedium)
                 Row(Modifier.horizontalScroll(rememberScrollState())) {
-                    val presets = (0 until e.numberOfPresets).map { e.getPresetName(it) }
-                    presets.forEachIndexed { i, name ->
+                    val count = e.numberOfPresets.toInt()
+                    (0 until count).forEach { i ->
+                        val name = runCatching { e.getPresetName(i.toShort()) }
+                            .getOrDefault("Preset $i")
                         FilterChip(
                             selected = preset == i,
                             onClick = {
                                 runCatching { e.usePreset(i.toShort()) }
                                 bands = (0 until e.numberOfBands).map { b ->
-                                    val band = e.getBand(b)
-                                    (band.centerFreq.toInt() to e.getBandLevel(b).toInt())
+                                    val bb = b.toShort()
+                                    Triple(bb, e.getCenterFreq(bb), e.getBandLevel(bb))
                                 }
                                 preset = i
                             },
@@ -82,21 +86,25 @@ fun EqualizerScreen(nav: NavHostController) {
 
                 Spacer(Modifier.height(16.dp))
                 Text("Полосы", style = MaterialTheme.typography.titleMedium)
-                bands.forEachIndexed { idx, (freq, level) ->
+
+                val range = e.bandLevelRange
+                bands.forEach { (bandIdx, freqHz, level) ->
                     Column(Modifier.padding(vertical = 4.dp)) {
-                        Text("${freq / 1000} Гц — $level")
+                        Text("${freqHz / 1000} Гц — $level")
                         Slider(
                             value = level.toFloat(),
                             onValueChange = { v ->
+                                val newLevel = v.toInt().toShort()
                                 runCatching {
-                                    e.setBandLevel(idx.toShort(), v.toInt().toShort())
-                                    bands = bands.toMutableList().also {
-                                        it[idx] = freq to v.toInt()
+                                    e.setBandLevel(bandIdx, newLevel)
+                                    bands = bands.map {
+                                        if (it.first == bandIdx) Triple(bandIdx, freqHz, newLevel)
+                                        else it
                                     }
                                 }
                             },
-                            valueRange = e.bandLevelRange[0].toFloat()..e.bandLevelRange[1].toFloat(),
-                            steps = (e.bandLevelRange[1] - e.bandLevelRange[0] - 1).toInt()
+                            valueRange = range[0].toFloat()..range[1].toFloat(),
+                            steps = (range[1] - range[0] - 1).toInt().coerceAtLeast(0)
                         )
                     }
                 }
