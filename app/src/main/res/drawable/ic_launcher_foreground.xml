@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Полоса 1 -->
+    <path
+        android:fillColor="#14B8A6"
+        android:pathData="M36,50 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+    <path
+        android:fillColor="#14B8A6"
+        android:pathData="M36,50 L36,58 A3,3 0 0,0 42,58 L42,50 Z" />
+
+    <!-- Полоса 2 (высокая) -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M46,44 L52,44 L52,68 L46,68 Z" />
+
+    <!-- Полоса 3 (максимальная) -->
+    <path
+        android:fillColor="#8B5CF6"
+        android:pathData="M56,36 L62,36 L62,72 L56,72 Z" />
+
+    <!-- Полоса 4 -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M66,44 L72,44 L72,68 L66,68 Z" />
+
+    <!-- Полоса 5 -->
+    <path
+        android:fillColor="#14B8A6"
+        android:pathData="M76,50 L82,50 L82,58 L76,58 Z" />
+</vector>
